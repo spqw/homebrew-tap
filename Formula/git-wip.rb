@@ -2,7 +2,7 @@ class GitWip < Formula
   desc "List recent git branches across workspaces, detect dirty/unpushed state, batch-commit to WIP branches"
   homepage "https://github.com/spqw/git-wip"
   url "https://github.com/spqw/git-wip.git", branch: "main"
-  version "0.1.0"
+  version "0.2.0"
   license "MIT"
 
   depends_on "node"
@@ -22,6 +22,6 @@ class GitWip < Formula
   end
 
   test do
-    assert_match "0.1.0", shell_output("#{bin}/git-wip --version")
+    assert_match "0.2.0", shell_output("#{bin}/git-wip --version")
   end
 end
