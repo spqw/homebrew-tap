@@ -1,4 +1,5 @@
 require "download_strategy"
+require "json"
 
 class GitHubPrivateReleaseDownloadStrategy < CurlDownloadStrategy
   def initialize(url, name, version, **meta)
@@ -22,8 +23,9 @@ class GitHubPrivateReleaseDownloadStrategy < CurlDownloadStrategy
 
   def _fetch(url:, resolved_url:, timeout:)
     curl_download download_url,
-                  "--header", "Authorization: token #{@github_token}",
                   "--header", "Accept: application/octet-stream",
+                  "--header", "Authorization: token #{@github_token}",
+                  "--location",
                   to: temporary_path
   end
 
@@ -33,7 +35,7 @@ class GitHubPrivateReleaseDownloadStrategy < CurlDownloadStrategy
     @github_token = ENV["HOMEBREW_GITHUB_API_TOKEN"]
     unless @github_token
       raise CurlDownloadStrategyError,
-            "HOMEBREW_GITHUB_API_TOKEN is required. Set it to a GitHub PAT with repo scope."
+            "HOMEBREW_GITHUB_API_TOKEN is required. Set it to a GitHub PAT with 'repo' scope."
     end
   end
 
@@ -42,15 +44,16 @@ class GitHubPrivateReleaseDownloadStrategy < CurlDownloadStrategy
   end
 
   def resolve_asset_id
-    release_metadata = fetch_release_metadata
-    assets = release_metadata["assets"].select { |a| a["name"] == @filename }
-    raise CurlDownloadStrategyError, "Asset file not found." if assets.empty?
+    release_url = "https://api.github.com/repos/#{@owner}/#{@repo}/releases/tags/#{@tag}"
+    output, = curl_output(
+      release_url,
+      "--header", "Authorization: token #{@github_token}",
+      "--header", "Accept: application/vnd.github+json",
+    )
+    metadata = JSON.parse(output)
+    assets = metadata["assets"]&.select { |a| a["name"] == @filename }
+    raise CurlDownloadStrategyError, "Asset '#{@filename}' not found in release #{@tag}." if assets.nil? || assets.empty?
 
     assets.first["id"]
-  end
-
-  def fetch_release_metadata
-    release_url = "https://api.github.com/repos/#{@owner}/#{@repo}/releases/tags/#{@tag}"
-    GitHub::API.open_rest(release_url)
   end
 end
