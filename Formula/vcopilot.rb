@@ -1,8 +1,8 @@
 class Vcopilot < Formula
   desc "GitHub Copilot CLI - pipe-friendly LLM interface"
   homepage "https://github.com/spqw/lib-copilot"
-  url "https://github.com/spqw/lib-copilot/releases/download/v1.0.13/vcopilot-1.0.13.tgz"
-  sha256 "2e166bded1a5d70d01da3f56650488b6d4d4c3afc1e1a5f3d3b3f5bbe7b2b873"
+  url "https://github.com/spqw/lib-copilot/releases/download/v1.0.14/vcopilot-1.0.14.tgz"
+  sha256 "5d5578bd492e8664758cddd9fe8ed6cb814f85b60823ec657999788f655c1b0b"
   license "MIT"
 
   depends_on "node"
